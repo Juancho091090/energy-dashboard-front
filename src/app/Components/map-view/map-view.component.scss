@@ -1,20 +1,26 @@
 /* src/app/components/map-view/map-view.component.scss */
+
+// Contenedor principal que permite scroll vertical
+:host {
+  display: block;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto; // ¡Clave! Permite scroll vertical
+}
+
+// Estructura de página flexible
 .page-container {
-  min-height: 100vh; // Ocupa como mínimo toda la altura de la ventana
   display: flex;
   flex-direction: column;
-  overflow-x: hidden; // Evita scroll horizontal
+  min-height: 100vh;
 }
+
 .content-container {
-  flex: 1; // Hace que el contenido crezca y ocupe el espacio disponible
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  // Eliminamos restricciones de altura y overflow que podrían causar problemas
+  padding-bottom: 2rem; // Espacio extra para el footer
 }
 
 // Estilos para el encabezado
@@ -22,10 +28,7 @@
   padding: 24px;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow-y: auto; /* Asegura que haya scroll vertical cuando sea necesario */
-  max-height: 100vh; /* Limita la altura para forzar el scroll cuando el contenido excede la altura de la ventana */
-  max-height: unset; // Elimina restricciones de altura
-  overflow-y: unset; // Elimina el scroll interno
+  flex-shrink: 0; // Evita que se comprima
 }
 
 .page-header {
@@ -51,7 +54,7 @@
   }
 }
 
-// Contenedor principal
+// Contenedor principal - CORREGIDO
 .map-view-content {
   max-width: 1400px;
   margin: 0 auto;
@@ -59,9 +62,8 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 24px;
-  max-height: unset; // Elimina restricciones de altura
-  overflow-y: unset; // Elimina el scroll interno
-
+  flex: 1; // Permite que crezca
+  // Removemos max-height y overflow restrictions
 }
 
 // Tarjeta del mapa
@@ -70,18 +72,21 @@
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  height: fit-content; // Se ajusta al contenido
 }
 
-// Contenedor y elemento del mapa
+// Contenedor del mapa - ALTURA FIJA
 .map-content {
   position: relative;
-  min-height: 600px;
+  height: 70vh; // Altura fija basada en viewport
+  min-height: 500px; // Altura mínima
+  max-height: 800px; // Altura máxima
   border-radius: 8px;
   overflow: hidden;
 }
 
 .map {
-  height: 600px;
+  height: 100%; // Ocupa todo el contenedor
   width: 100%;
   z-index: 0;
 }
@@ -133,6 +138,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: fit-content; // Se ajusta al contenido
 }
 
 // Tarjetas de leyenda e información
@@ -259,6 +265,13 @@
   }
 }
 
+// Footer - CORREGIDO
+.map-footer {
+  margin-top: 2rem;
+  flex-shrink: 0; // Evita que se comprima
+  width: 100%;
+}
+
 // Estilos para el botón en el popup de Leaflet
 ::ng-deep .popup-button {
   background-color: #3f51b5;
@@ -284,11 +297,6 @@
   align-items: center;
 }
 
-// Pie de página
-.map-footer {
-  margin-top: 24px;
-}
-
 // Responsive
 @media (max-width: 992px) {
   .map-view-content {
@@ -296,11 +304,8 @@
   }
 
   .map-content {
-    min-height: 500px;
-  }
-
-  .map {
-    height: 500px;
+    height: 60vh;
+    min-height: 400px;
   }
 
   .map-info-container {
@@ -334,18 +339,11 @@
   }
 
   .map-content {
-    min-height: 400px;
-  }
-
-  .map {
-    height: 400px;
+    height: 50vh;
+    min-height: 350px;
   }
 
   .stat-value {
     font-size: 24px;
   }
-  app-footer {
-  margin-top: auto; // Empuja el footer al final del contenedor flexible
-  width: 100%;
-}
 }
