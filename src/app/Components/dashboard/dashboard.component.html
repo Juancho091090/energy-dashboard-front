@@ -1,0 +1,165 @@
+<app-navbar></app-navbar>
+<div class="page-container">
+<div class="dashboard-container">
+  <!-- Encabezado del Dashboard -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Dashboard de Consumo Energético</h1>
+      <p>Monitoreo de consumo energético en colegios de la localidad de Suba, Bogotá</p>
+
+      <!-- Indicador de datos simulados (opcional) -->
+      <!--div *ngIf="usingSimulatedData" class="simulation-indicator">
+        <mat-icon color="warn">info</mat-icon>
+        <span>
+          <strong>Visualización con datos simulados</strong> -
+          No se pudo conectar con la API. Se muestran datos generados automáticamente.
+        </span>
+      </!--div-->
+    </div>
+  </div>
+
+  <!-- Tarjetas de indicadores clave -->
+  <div class="metrics-cards">
+    <mat-card class="metric-card consumption-card">
+      <mat-card-content>
+        <div class="metric-icon">
+          <mat-icon>flash_on</mat-icon>
+        </div>
+        <div class="metric-details">
+          <h3 class="metric-title">Consumo Total</h3>
+          <p class="metric-subtitle">Últimos 7 días</p>
+          <div class="metric-value">
+            <span class="number">{{ consumoTotal | number:'1.2-2' }}</span>
+            <span class="unit">kWh</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="metric-card locations-card">
+      <mat-card-content>
+        <div class="metric-icon">
+          <mat-icon>location_city</mat-icon>
+        </div>
+        <div class="metric-details">
+          <h3 class="metric-title">Sedes Monitoreadas</h3>
+          <p class="metric-subtitle">Total de colegios</p>
+          <div class="metric-value">
+            <span class="number">{{ sedesCount }}</span>
+            <span class="unit">sedes</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="metric-card update-card">
+      <mat-card-content>
+        <div class="metric-icon">
+          <mat-icon>update</mat-icon>
+        </div>
+        <div class="metric-details">
+          <h3 class="metric-title">Última Actualización</h3>
+          <p class="metric-subtitle">Datos actualizados</p>
+          <div class="metric-value">
+            <span class="timestamp">{{ lastUpdate }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Gráficos principales -->
+  <div class="chart-container">
+    <!-- Gráfico de consumo por hora -->
+  <mat-card class="chart-card">
+    <mat-card-header>
+      <mat-card-title>
+        <div class="chart-title">
+          <mat-icon>schedule</mat-icon>
+          <span>Consumo por Hora</span>
+        </div>
+      </mat-card-title>
+      <mat-card-subtitle>Últimas 24 horas</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngIf="loadingConsumos" class="chart-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando datos...</p>
+      </div>
+      <div *ngIf="!loadingConsumos" class="chart-content">
+        <div class="hourly-chart-container">
+          <div class="bar-chart">
+            <div *ngFor="let hora of consumoHoras" class="bar-container">
+              <div class="bar" [style.height.%]="getBarHeightPercent(hora.consumo)">
+                <span class="bar-value">{{ hora.consumo }}</span>
+              </div>
+              <div class="bar-label">{{ hora.hora }}h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+</mat-card>
+
+    <!-- Gráfico de consumo por sede -->
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>
+          <div class="chart-title">
+            <mat-icon>domain</mat-icon>
+            <span>Consumo por Sede</span>
+          </div>
+        </mat-card-title>
+        <mat-card-subtitle>Top 10 sedes con mayor consumo</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="loadingSedes" class="chart-loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Cargando datos...</p>
+        </div>
+        <div *ngIf="!loadingSedes" class="chart-content">
+          <!-- Gráfico de barras horizontales simplificado -->
+          <div class="sede-chart-container">
+            <div *ngIf="getSimulatedSedeData().length > 0" class="horizontal-chart">
+              <div *ngFor="let sede of getSimulatedSedeData()" class="horizontal-bar-container">
+                <div class="sede-name">{{ sede.nombre }}</div>
+                <div class="sede-bar-container">
+                  <div class="sede-bar" [style.width.%]="sede.porcentaje">
+                    <span class="sede-bar-value">{{ sede.consumo }} kWh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="getSimulatedSedeData().length === 0" class="no-data">
+              <div class="no-data-content">
+                <mat-icon>trending_down</mat-icon>
+                <p>No hay datos de consumo por sede disponibles</p>
+                <button mat-stroked-button color="primary" (click)="generarDatosConsumoPorSede()">
+                  Generar datos de ejemplo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="action-buttons">
+    <button mat-raised-button color="primary" (click)="irAPowerBIDashboard()">
+      <mat-icon>dashboard</mat-icon> Ver Dashboard Completo
+    </button>
+    <button mat-raised-button color="accent" routerLink="/map">
+      <mat-icon>map</mat-icon> Ver Mapa de Consumo
+    </button>
+    <button mat-raised-button color="warn" routerLink="/analytics">
+      <mat-icon>insights</mat-icon> Análisis Detallado
+    </button>
+  </div>
+</div>
+<app-footer></app-footer>
+</div>
+
+
+

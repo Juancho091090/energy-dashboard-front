@@ -1,0 +1,332 @@
+<!-- src/app/components/analytics/analytics.component.html -->
+<app-navbar></app-navbar>
+<div class="page-container">
+  <div class="analytics-container">
+    <div class="page-header">
+      <h1 class="main-title">Análisis de Consumo Energético</h1>
+      <p class="subtitle">Análisis detallado del consumo energético en colegios de la localidad de Suba, Bogotá</p>
+    </div>
+
+    <mat-card class="filter-card">
+      <mat-card-header>
+        <mat-card-title>Filtros</mat-card-title>
+        <mat-card-subtitle>Selecciona los parámetros para el análisis</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
+          <div class="form-container">
+            <div class="form-row">
+              <mat-form-field appearance="fill">
+                <mat-label>Fecha Inicio</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Fecha Fin</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill">
+                <mat-label>Sede</mat-label>
+                <mat-select formControlName="sedeId">
+                  <mat-option value="">Todas las sedes</mat-option>
+                  <mat-option *ngFor="let sede of sedes" [value]="sede.id">
+                    {{ sede.nombre_sede }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Granularidad</mat-label>
+                <mat-select formControlName="granularity">
+                  <mat-option value="hourly">Por hora</mat-option>
+                  <mat-option value="daily">Por día</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+                <mat-icon>search</mat-icon> Analizar
+              </button>
+              <button mat-raised-button type="button" (click)="resetForm()" [disabled]="loading">
+                <mat-icon>refresh</mat-icon> Resetear
+              </button>
+              <button mat-raised-button color="accent" type="button" (click)="openAIAnalysisDialog()" [disabled]="loading">
+                <mat-icon>psychology_alt</mat-icon> Análisis con IA
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Procesando datos...</p>
+    </div>
+
+    <div *ngIf="!loading && hasData" class="results-container">
+      <div class="results-header">
+        <h2 class="results-title">
+          <mat-icon class="results-icon">insights</mat-icon>
+          Resultados del Análisis
+        </h2>
+        <p class="results-subtitle">Período: {{ formatDateDisplay(filterForm.value.startDate) }} - {{ formatDateDisplay(filterForm.value.endDate) }}</p>
+      </div>
+
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>bar_chart</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3 class="stat-title">Consumo Total</h3>
+              <div class="stat-value">{{ getTotalConsumo() | number:'1.2-2' }} <span class="unit">kWh</span></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3 class="stat-title">Consumo Promedio</h3>
+              <div class="stat-value">{{ getPromedioConsumo() | number:'1.2-2' }} <span class="unit">kWh</span></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3 class="stat-title">Registros Analizados</h3>
+              <div class="stat-value">{{ consumoData.length }}</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <div class="card-header-icon">
+            <mat-icon>{{ selectedGranularity === 'hourly' ? 'schedule' : 'calendar_today' }}</mat-icon>
+          </div>
+          <mat-card-title>
+            <span>{{ selectedGranularity === 'hourly' ? 'Consumo por Hora' : 'Consumo por Día' }}</span>
+          </mat-card-title>
+          <mat-card-subtitle>Visualización del consumo energético</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="chart-visualization">
+              <div class="chart-placeholder">
+                <div class="chart-bars">
+                  <div *ngFor="let item of consumoData.slice(0, 10)" class="chart-bar"
+                       [style.height.%]="getBarHeight(item)">
+                    <span class="bar-label visible">
+                      {{ item.consumo_total_kwh || item.consumo_total_diario_kwh | number:'1.0-0' }} kWh
+                    </span>
+                  </div>
+                </div>
+                <div class="chart-labels">
+                  <div *ngFor="let item of consumoData.slice(0, 10)" class="chart-label">
+                    {{ formatChartLabel(item) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="table-card">
+        <div class="download-options">
+        <button mat-raised-button color="primary" (click)="downloadCSV()">
+          <mat-icon>cloud_download</mat-icon> Descargar CSV
+        </button>
+        <button mat-raised-button color="accent" (click)="downloadPDF()">
+          <mat-icon>picture_as_pdf</mat-icon> Generar PDF
+        </button>
+      </div>
+        <mat-card-header>
+          <div class="card-header-icon">
+            <mat-icon>table_chart</mat-icon>
+          </div>
+          <mat-card-title>
+            <span>Tabla de Datos</span>
+          </mat-card-title>
+          <mat-card-subtitle>Registros detallados del período analizado</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th *ngIf="selectedGranularity === 'hourly'">Hora</th>
+                  <th *ngIf="selectedGranularity === 'daily'">Fecha</th>
+                  <th>Sede</th>
+                  <th>Consumo Total (kWh)</th>
+                  <th>Consumo Promedio (kWh)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of consumoData; let i = index">
+                  <td *ngIf="selectedGranularity === 'hourly'">
+                    {{ formatDate(item.hora_inicio_utc) }}
+                  </td>
+                  <td *ngIf="selectedGranularity === 'daily'">
+                    {{ formatDate(item.fecha_utc) }}
+                  </td>
+                  <td>{{ item.nombre_sede || 'Sede #' + item.id_sede_fk }}</td>
+                  <td>{{ item.consumo_total_kwh | number:'1.2-2' }}</td>
+                  <td>{{
+                    selectedGranularity === 'hourly'
+                      ? (item.consumo_promedio_kwh | number:'1.2-2')
+                      : (item.consumo_promedio_horario_kwh | number:'1.2-2')
+                  }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div *ngIf="!loading && !hasData && filterForm.dirty" class="no-data">
+      <mat-card>
+        <mat-card-content>
+          <div class="no-data-message">
+            <mat-icon>info</mat-icon>
+            <p>No se encontraron datos para los filtros seleccionados.</p>
+            <button mat-stroked-button color="primary" (click)="resetForm()">
+              <mat-icon>refresh</mat-icon> Reiniciar filtros
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  <!-- Diálogo para seleccionar la sede a analizar con IA -->
+<ng-template #analysisDialogTemplate>
+  <h2 mat-dialog-title>Análisis de Consumo con IA</h2>
+  <mat-dialog-content>
+    <p>Selecciona una sede y el período para generar un análisis detallado utilizando Inteligencia Artificial.</p>
+
+    <form [formGroup]="analysisForm" class="analysis-form">
+      <!-- Selector de sede -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Seleccione una sede</mat-label>
+        <mat-select formControlName="sedeId" required>
+          <mat-option *ngFor="let sede of sedes" [value]="sede.id">
+            {{ sede.nombre_sede }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="analysisForm.get('sedeId')?.invalid">Debe seleccionar una sede</mat-error>
+      </mat-form-field>
+
+      <!-- Fechas de inicio y fin -->
+      <div class="form-row">
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Inicio</mat-label>
+          <input matInput [matDatepicker]="aiStartPicker" formControlName="startDate" required>
+          <mat-datepicker-toggle matSuffix [for]="aiStartPicker"></mat-datepicker-toggle>
+          <mat-datepicker #aiStartPicker></mat-datepicker>
+          <mat-error *ngIf="analysisForm.get('startDate')?.invalid">Fecha requerida</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Fin</mat-label>
+          <input matInput [matDatepicker]="aiEndPicker" formControlName="endDate" required>
+          <mat-datepicker-toggle matSuffix [for]="aiEndPicker"></mat-datepicker-toggle>
+          <mat-datepicker #aiEndPicker></mat-datepicker>
+          <mat-error *ngIf="analysisForm.get('endDate')?.invalid">Fecha requerida</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Selección de granularidad -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Granularidad</mat-label>
+        <mat-select formControlName="granularity" required>
+          <mat-option value="hourly">Por hora</mat-option>
+          <mat-option value="daily">Por día</mat-option>
+        </mat-select>
+        <mat-error *ngIf="analysisForm.get('granularity')?.invalid">Seleccione una granularidad</mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-raised-button color="primary" [disabled]="analysisForm.invalid || generatingAnalysis" (click)="generateAIAnalysis()">
+      <mat-icon>analytics</mat-icon>
+      <span *ngIf="!generatingAnalysis">Generar Análisis</span>
+      <span *ngIf="generatingAnalysis">Generando...</span>
+    </button>
+  </mat-dialog-actions>
+</ng-template>
+
+<!-- Sidebar para mostrar el análisis generado por IA -->
+<!-- Solución simple para mostrar el análisis IA directamente en la página -->
+<!-- Añade este código en analytics.component.html en un lugar visible, por ejemplo, justo debajo de la tarjeta de filtros -->
+
+<!-- SECCIÓN DE ANÁLISIS IA - IMPLEMENTACIÓN SIMPLE -->
+<div *ngIf="showAnalysisSidebar" style="margin: 20px; padding: 20px; border: 1px solid #ccc; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h2 style="margin: 0; color: #3f51b5;">Análisis de Consumo para: {{ selectedSedeName }}</h2>
+    <button mat-icon-button (click)="closeAnalysisSidebar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="generatingAnalysis" style="text-align: center; padding: 20px;">
+    <mat-spinner diameter="40" style="margin: 0 auto;"></mat-spinner>
+    <p style="margin-top: 15px;">Generando análisis, por favor espere...</p>
+  </div>
+
+  <!-- Estado de error -->
+  <div *ngIf="!generatingAnalysis && analysisError" style="text-align: center; padding: 20px; color: #f44336;">
+    <mat-icon style="font-size: 48px; height: 48px; width: 48px;">error_outline</mat-icon>
+    <h3>Error al generar el análisis</h3>
+    <p>{{ analysisError }}</p>
+    <button mat-button color="primary" (click)="openAIAnalysisDialog()">
+      <mat-icon>refresh</mat-icon> Intentar de nuevo
+    </button>
+  </div>
+
+  <!-- Resultado del análisis -->
+  <div *ngIf="!generatingAnalysis && !analysisError && analysisResult">
+    <!-- Contenido del análisis -->
+    <div [innerHTML]="analysisResult"></div>
+
+    <!-- Botón de descarga -->
+    <div style="margin-top: 20px; text-align: center;">
+      <button mat-raised-button color="primary" (click)="downloadAnalysis()">
+        <mat-icon>download</mat-icon> Descargar Análisis
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensaje si no hay resultado pero tampoco error -->
+  <div *ngIf="!generatingAnalysis && !analysisError && !analysisResult" style="text-align: center; padding: 20px;">
+    <p>No se pudo mostrar el análisis. Por favor, intente de nuevo.</p>
+    <button mat-button color="primary" (click)="openAIAnalysisDialog()">
+      <mat-icon>refresh</mat-icon> Intentar de nuevo
+    </button>
+  </div>
+</div>
+<app-footer></app-footer>
+</div>
+

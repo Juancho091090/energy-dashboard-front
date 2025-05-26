@@ -25,3 +25,18 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+# Frontend - [DashboardFront]
+
+Frontend desarrollado en Angular para el proyecto académico [nombre del proyecto].
+
+## Tecnologías utilizadas
+
+- Angular [versión]
+- TypeScript
+- HTML5 & CSS3
+- [Otras librerías que uses]
+
+## Instalación
+
+```bash
+npm install

@@ -1,0 +1,52 @@
+<!-- src/app/components/shared/sidebar/sidebar.component.html -->
+
+<div class="sidebar">
+  <div class="logo-container">
+    <div class="logo">
+      <mat-icon>flash_on</mat-icon>
+      <span>MICE</span>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="section-title">Navegación</div>
+
+  <mat-nav-list>
+    <a mat-list-item [routerLink]="['/dashboard']" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>dashboard</mat-icon>
+      <span matListItemTitle>Dashboard</span>
+    </a>
+
+    <a mat-list-item [routerLink]="['/map']" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>map</mat-icon>
+      <span matListItemTitle>Mapa</span>
+    </a>
+
+    <a mat-list-item [routerLink]="['/analytics']" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>insights</mat-icon>
+      <span matListItemTitle>Análisis</span>
+    </a>
+  </mat-nav-list>
+
+  <mat-divider></mat-divider>
+
+  <div class="section-title">Reportes</div>
+
+  <mat-nav-list>
+    <a mat-list-item [routerLink]="['/analytics']" [queryParams]="{report: 'daily'}" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>insert_drive_file</mat-icon>
+      <span matListItemTitle>Consumo diario</span>
+    </a>
+
+    <a mat-list-item [routerLink]="['/analytics']" [queryParams]="{report: 'monthly'}" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>insert_drive_file</mat-icon>
+      <span matListItemTitle>Consumo mensual</span>
+    </a>
+
+    <a mat-list-item [routerLink]="['/analytics']" [queryParams]="{report: 'by-sede'}" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>insert_drive_file</mat-icon>
+      <span matListItemTitle>Consumo por sede</span>
+    </a>
+  </mat-nav-list>
+</div>

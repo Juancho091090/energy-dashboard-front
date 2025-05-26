@@ -1,0 +1,275 @@
+<!-- src/app/components/sede-detail/sede-detail.component.html -->
+<app-navbar></app-navbar>
+<div class="sede-detail-container">
+  <!-- Cabecera con botón de volver e información de la sede -->
+  <div class="sede-header">
+    <div class="sede-info" *ngIf="sede && !error">
+      <h1 class="sede-title">{{ sede?.nombre || sede?.nombre_sede }}</h1>
+      <div class="sede-meta">
+        <span class="meta-item">
+          <mat-icon>location_on</mat-icon> {{ sede?.direccion || 'Dirección no disponible' }}
+        </span>
+        <span class="meta-item">
+          <mat-icon>business</mat-icon> {{ sede?.tipo || 'Colegio' }}
+        </span>
+        <span class="meta-item">
+          <mat-icon>event</mat-icon> Activa desde {{ sede?.fechaInicio | date:'MMM yyyy' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando datos de la sede...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="!loading && error && !sede" class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <div class="error-icon">
+          <mat-icon>error_outline</mat-icon>
+        </div>
+        <div class="error-message">
+          <h2>Error al cargar los datos</h2>
+          <p>{{ error }}</p>
+          <button mat-raised-button color="primary" (click)="cargarDatosSede()">
+            <mat-icon>refresh</mat-icon> Reintentar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Advertencia de datos simulados -->
+  <div *ngIf="error && sede" class="warning-container">
+    <mat-card class="warning-card">
+      <mat-card-content>
+        <div class="warning-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="warning-message">
+          <p>{{ error }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Contenido principal (solo visible si no hay error y no está cargando) -->
+  <div *ngIf="!loading && sede" class="sede-content">
+    <!-- Mapa de ubicación de la sede -->
+    <mat-card class="map-card">
+      <mat-card-header>
+        <div class="card-header-icon">
+          <mat-icon>place</mat-icon>
+        </div>
+        <mat-card-title>Ubicación del Centro Educativo</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="sede-map-container">
+          <!-- Añadimos un spinner durante la carga del mapa -->
+          <div *ngIf="mapLoading" class="map-loading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Cargando mapa...</p>
+          </div>
+          <div id="sede-map" class="sede-map"></div>
+        </div>
+        <div class="sede-location-info">
+          <div class="location-item">
+            <mat-icon>location_on</mat-icon>
+            <span>Latitud: {{ sede.lat | number:'1.6-6' }}°</span>
+          </div>
+          <div class="location-item">
+            <mat-icon>explore</mat-icon>
+            <span>Longitud: {{ sede.lon | number:'1.6-6' }}°</span>
+          </div>
+          <div class="location-item">
+            <mat-icon>map</mat-icon>
+            <span>Localidad: {{ sede.id_localidad || 'Suba' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Controles de período -->
+    <div class="period-control">
+      <div class="period-selector">
+        <button mat-button
+          [class.active]="selectedPeriod === 'day'"
+          (click)="changePeriod('day')">
+          Día
+        </button>
+        <button mat-button
+          [class.active]="selectedPeriod === 'week'"
+          (click)="changePeriod('week')">
+          Semana
+        </button>
+        <button mat-button
+          [class.active]="selectedPeriod === 'month'"
+          (click)="changePeriod('month')">
+          Mes
+        </button>
+      </div>
+
+      <div class="date-navigator">
+        <button mat-icon-button color="primary" (click)="changeDate(-1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="current-period">{{ periodLabel }}</span>
+        <button mat-icon-button color="primary" (click)="changeDate(1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjetas de consumo -->
+    <div class="stats-cards">
+      <mat-card class="stat-card consumption-card">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Consumo Total</h4>
+            <div class="stat-value">{{ getConsumoTotal() | number:'1.2-2' }} kWh</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card power-card">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>speed</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Potencia Máxima</h4>
+            <div class="stat-value">{{ getPotenciaMaxima() | number:'1.2-2' }} kW</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card cost-card">
+        <mat-card-content>
+          <div class="stat-icon">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Coste Estimado</h4>
+            <div class="stat-value">{{ getConsumoTotal() * 0.12 | currency:'EUR' }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Gráfico de consumo -->
+    <mat-card class="chart-section">
+      <mat-card-header>
+        <div class="card-header-icon">
+          <mat-icon>insights</mat-icon>
+        </div>
+        <mat-card-title>Consumo de Energía</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <!-- Gráfico de consumo por horas -->
+          <div *ngIf="selectedPeriod === 'day'" class="chart-visualization">
+            <div *ngIf="consumoHoras && consumoHoras.length > 0" class="chart-bars">
+              <div *ngFor="let hora of consumoHoras" class="chart-bar"
+                   [style.height.%]="getBarHeight(hora.consumo)">
+                <div class="bar-value">{{ hora.consumo | number:'1.0-0' }}</div>
+              </div>
+            </div>
+            <div class="chart-labels">
+              <div *ngFor="let hora of consumoHoras" class="bar-label">{{ hora.hora }}h</div>
+            </div>
+
+            <div *ngIf="!consumoHoras || consumoHoras.length === 0" class="no-data">
+              <mat-icon>info</mat-icon>
+              <p>No hay datos disponibles para este día</p>
+            </div>
+          </div>
+
+          <!-- Gráfico de consumo por días -->
+          <div *ngIf="selectedPeriod !== 'day'" class="chart-visualization">
+            <div *ngIf="consumoDias && consumoDias.length > 0" class="chart-bars">
+              <div *ngFor="let dia of consumoDias" class="chart-bar"
+                   [style.height.%]="getBarHeight(dia.consumo)">
+                <div class="bar-value">{{ dia.consumo | number:'1.0-0' }}</div>
+              </div>
+            </div>
+            <div class="chart-labels">
+              <div *ngFor="let dia of consumoDias" class="bar-label">
+                {{ dia.fecha | date:'dd/MM' }}
+              </div>
+            </div>
+
+            <div *ngIf="!consumoDias || consumoDias.length === 0" class="no-data">
+              <mat-icon>info</mat-icon>
+              <p>No hay datos disponibles para este período</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabla de consumo detallada -->
+    <mat-card class="consumption-details">
+      <mat-card-header>
+        <div class="card-header-icon">
+          <mat-icon>table_chart</mat-icon>
+        </div>
+        <mat-card-title>Detalles de Consumo</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="details-table-container">
+          <!-- Tabla para consumo por horas -->
+          <table class="details-table" *ngIf="selectedPeriod === 'day' && consumoHoras && consumoHoras.length > 0">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Consumo (kWh)</th>
+                <th>% del Máximo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let hora of consumoHoras">
+                <td>{{ hora.hora }}:00</td>
+                <td>{{ hora.consumo | number:'1.2-2' }}</td>
+                <td>{{ (hora.consumo / getPotenciaMaxima()) * 100 | number:'1.0-0' }}%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Tabla para consumo por días -->
+          <table class="details-table" *ngIf="selectedPeriod !== 'day' && consumoDias && consumoDias.length > 0">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Consumo (kWh)</th>
+                <th>% del Máximo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dia of consumoDias">
+                <td>{{ dia.fecha | date:'dd/MM/yyyy' }}</td>
+                <td>{{ dia.consumo | number:'1.2-2' }}</td>
+                <td>{{ (dia.consumo / getPotenciaMaxima()) * 100 | number:'1.0-0' }}%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Mensaje si no hay datos -->
+          <div *ngIf="(selectedPeriod === 'day' && (!consumoHoras || consumoHoras.length === 0)) ||
+                      (selectedPeriod !== 'day' && (!consumoDias || consumoDias.length === 0))"
+               class="no-data-message">
+            <mat-icon>info</mat-icon>
+            <p>No hay datos disponibles para el período seleccionado</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <app-footer></app-footer>
+</div>

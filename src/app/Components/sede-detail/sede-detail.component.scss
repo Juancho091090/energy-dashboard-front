@@ -1,0 +1,686 @@
+/* src/app/components/sede-detail/sede-detail.component.scss */
+
+// Variables de color (usando la paleta de la aplicación)
+$primary-color: #3f51b5;
+$primary-light: #e8eaf6;
+$primary-dark: #303f9f;
+$accent-color: #ff4081;
+$background-color: #f8f9fa;
+$card-background: #ffffff;
+$error-color: #f44336;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+
+// Estilos del contenedor principal
+.sede-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: $background-color;
+  min-height: 100vh;
+  overflow-y: auto; /* Asegura que haya scroll vertical cuando sea necesario */
+  max-height: 100vh; /* Limita la altura para forzar el scroll cuando el contenido excede la altura de la ventana */
+}
+
+// Cabecera con información de la sede
+.sede-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 32px;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    background-color: $primary-light;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-right: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: $primary-color;
+    font-weight: 500;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      background-color: $primary-color;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .sede-info {
+    flex: 1;
+
+    .sede-title {
+      margin: 0 0 16px 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: $primary-color;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .sede-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+
+        mat-icon {
+          margin-right: 8px;
+          color: $primary-color;
+          font-size: 18px;
+          height: 18px;
+          width: 18px;
+        }
+      }
+    }
+  }
+}
+
+// Contenedor de carga
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+
+  p {
+    margin-top: 24px;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+  }
+}
+
+// Tarjeta y contenedor de error
+.error-container {
+  padding: 24px 0;
+}
+
+.error-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border-left: 4px solid $error-color;
+
+  mat-card-content {
+    display: flex;
+    padding: 24px;
+  }
+
+  .error-icon {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-right: 24px;
+
+    mat-icon {
+      color: $error-color;
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+    }
+  }
+
+  .error-message {
+    flex: 1;
+
+    h2 {
+      margin: 0 0 16px 0;
+      color: $error-color;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      color: rgba(0, 0, 0, 0.7);
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    button mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Tarjeta de advertencia
+.warning-container {
+  margin-bottom: 24px;
+}
+
+.warning-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border-left: 4px solid $warning-color;
+
+  mat-card-content {
+    display: flex;
+    padding: 16px;
+  }
+
+  .warning-icon {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-right: 16px;
+
+    mat-icon {
+      color: $warning-color;
+      font-size: 24px;
+      height: 24px;
+      width: 24px;
+    }
+  }
+
+  .warning-message {
+    flex: 1;
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.7);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+}
+
+// Controles de período
+.period-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  .period-selector {
+    display: flex;
+    background-color: $primary-light;
+    border-radius: 8px;
+    overflow: hidden;
+
+    button {
+      padding: 8px 24px;
+      border-radius: 0;
+      color: rgba(0, 0, 0, 0.6);
+      transition: all 0.2s ease;
+      min-width: 80px;
+
+      &.active {
+        background-color: $primary-color;
+        color: white;
+        font-weight: 500;
+      }
+
+      &:hover:not(.active) {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      &:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+
+      &:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+    }
+  }
+
+  .date-navigator {
+    display: flex;
+    align-items: center;
+
+    .current-period {
+      margin: 0 16px;
+      min-width: 120px;
+      text-align: center;
+      font-weight: 500;
+      color: $primary-color;
+      font-size: 16px;
+    }
+  }
+}
+
+// Tarjetas de estadísticas
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+
+  .stat-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    mat-card-content {
+      display: flex;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 20px;
+
+      mat-icon {
+        font-size: 30px;
+        height: 30px;
+        width: 30px;
+      }
+    }
+
+    .stat-content {
+      h4 {
+        margin: 0 0 8px 0;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .consumption-card .stat-icon {
+    background-color: #e3f2fd;
+
+    mat-icon {
+      color: #1976d2;
+    }
+
+    & + .stat-content .stat-value {
+      color: #1976d2;
+    }
+  }
+
+  .power-card .stat-icon {
+    background-color: #fff3e0;
+
+    mat-icon {
+      color: #ff9800;
+    }
+
+    & + .stat-content .stat-value {
+      color: #ff9800;
+    }
+  }
+
+  .cost-card .stat-icon {
+    background-color: #e8f5e9;
+
+    mat-icon {
+      color: #4caf50;
+    }
+
+    & + .stat-content .stat-value {
+      color: #4caf50;
+    }
+  }
+}
+
+// Tarjetas de gráficos y detalles
+.chart-section, .consumption-details, .map-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 32px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-header {
+    background-color: #f5f5f5;
+    padding: 16px 24px;
+
+    .card-header-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: $primary-light;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+
+      mat-icon {
+        color: $primary-color;
+        font-size: 20px;
+      }
+    }
+
+    mat-card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: $primary-color;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  mat-card-content {
+    padding: 24px;
+  }
+}
+
+// Contenedor del gráfico
+.chart-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+}
+
+.chart-visualization {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 320px;
+  padding-bottom: 40px;
+}
+
+.chart-bar {
+  width: 40px;
+  background-color: $primary-color;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: 3px;
+
+  .bar-value {
+    position: absolute;
+    top: -25px;
+    color: $primary-color;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background-color: $primary-dark;
+  }
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-around;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 20px;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+  padding: 8px 0;
+}
+
+// No hay datos disponibles
+.no-data, .no-data-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+
+  mat-icon {
+    color: #78909c;
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 80%;
+  }
+}
+
+// Tabla de detalles
+.details-table-container {
+  overflow-x: auto;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  th {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+    background-color: #f5f5f5;
+  }
+
+  td {
+    font-size: 14px;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// Contenedor del mapa
+.sede-map-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sede-map {
+  width: 100%;
+  height: 100%;
+}
+
+// Estilos para el overlay de carga del mapa
+.map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+
+  p {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// Información de ubicación
+.sede-location-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+
+  mat-icon {
+    color: $primary-color;
+    margin-right: 8px;
+  }
+
+  span {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+// Personalización del marcador del mapa (popup)
+::ng-deep .sede-popup {
+  .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .leaflet-popup-content {
+    margin: 0;
+    padding: 16px;
+    min-width: 200px;
+  }
+
+  .popup-title {
+    margin: 0 0 8px 0;
+    color: $primary-color;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .popup-address {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .popup-button {
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: $primary-dark;
+    }
+  }
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+  .sede-detail-container {
+    padding: 16px;
+  }
+
+  .stats-cards {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .sede-map-container {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sede-header {
+    flex-direction: column;
+
+    .back-button {
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+  }
+
+  .period-control {
+    flex-direction: column;
+    gap: 16px;
+
+    .period-selector {
+      width: 100%;
+    }
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 350px;
+  }
+
+  .chart-bars {
+    height: 260px;
+  }
+
+  .chart-bar {
+    width: 30px;
+  }
+
+  .sede-map-container {
+    height: 300px;
+  }
+
+  .sede-location-info {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .location-item {
+    min-width: auto;
+  }
+}

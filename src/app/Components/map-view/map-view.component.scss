@@ -1,0 +1,351 @@
+/* src/app/components/map-view/map-view.component.scss */
+.page-container {
+  min-height: 100vh; // Ocupa como mínimo toda la altura de la ventana
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; // Evita scroll horizontal
+}
+.content-container {
+  flex: 1; // Hace que el contenido crezca y ocupe el espacio disponible
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  // Eliminamos restricciones de altura y overflow que podrían causar problemas
+}
+
+// Estilos para el encabezado
+.map-view-header {
+  padding: 24px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow-y: auto; /* Asegura que haya scroll vertical cuando sea necesario */
+  max-height: 100vh; /* Limita la altura para forzar el scroll cuando el contenido excede la altura de la ventana */
+  max-height: unset; // Elimina restricciones de altura
+  overflow-y: unset; // Elimina el scroll interno
+}
+
+.page-header {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  margin-bottom: 24px;
+
+  .main-title {
+    margin: 0 0 12px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #3f51b5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .subtitle {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+  }
+}
+
+// Contenedor principal
+.map-view-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  max-height: unset; // Elimina restricciones de altura
+  overflow-y: unset; // Elimina el scroll interno
+
+}
+
+// Tarjeta del mapa
+.map-card {
+  margin-bottom: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+// Contenedor y elemento del mapa
+.map-content {
+  position: relative;
+  min-height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map {
+  height: 600px;
+  width: 100%;
+  z-index: 0;
+}
+
+// Estilos para la superposición de carga
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+
+  p {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 500;
+  }
+}
+
+// Controles del mapa
+.map-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+
+  button {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// Contenedor de información lateral
+.map-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Tarjetas de leyenda e información
+.legend-card, .info-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-header {
+    background-color: #f5f5f5;
+    padding: 16px 24px;
+
+    mat-card-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #3f51b5;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  mat-card-content {
+    padding: 24px;
+  }
+
+  .card-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e8eaf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+
+    mat-icon {
+      color: #3f51b5;
+      font-size: 22px;
+    }
+  }
+}
+
+// Elementos de leyenda
+.legend-items {
+  margin-top: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 12px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.legend-description {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+// Elementos de información
+.stats-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 24px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0 16px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #3f51b5;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.info-tip {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #e8eaf6;
+  border-radius: 8px;
+  margin-top: 16px;
+
+  mat-icon {
+    margin-right: 12px;
+    color: #3f51b5;
+  }
+
+  span {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 14px;
+  }
+}
+
+// Estilos para el botón en el popup de Leaflet
+::ng-deep .popup-button {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-top: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #303f9f;
+  }
+}
+
+// Estilos para los marcadores personalizados
+.custom-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// Pie de página
+.map-footer {
+  margin-top: 24px;
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .map-view-content {
+    grid-template-columns: 1fr;
+  }
+
+  .map-content {
+    min-height: 500px;
+  }
+
+  .map {
+    height: 500px;
+  }
+
+  .map-info-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .map-view-header {
+    padding: 16px;
+  }
+
+  .page-header {
+    .main-title {
+      font-size: 24px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .map-view-content {
+    padding: 16px;
+  }
+
+  .map-info-container {
+    grid-template-columns: 1fr;
+  }
+
+  .map-content {
+    min-height: 400px;
+  }
+
+  .map {
+    height: 400px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+  app-footer {
+  margin-top: auto; // Empuja el footer al final del contenedor flexible
+  width: 100%;
+}
+}
