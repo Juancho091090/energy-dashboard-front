@@ -1,97 +1,118 @@
 <!-- src/app/components/map-view/map-view.component.html -->
-<app-navbar></app-navbar>
+<div class="page-container">
+  <app-navbar></app-navbar>
 
-<div class="map-view-header">
-  <div class="page-header">
-    <h1 class="main-title">Maqueta Virtual</h1>
-    <p class="subtitle">Visualización geográfica de los colegios en la localidad de Suba, Bogotá</p>
+  <div class="map-view-header">
+    <div class="page-header">
+      <h1 class="main-title">Maqueta Virtual</h1>
+      <p class="subtitle">
+        Visualización geográfica de los colegios en la localidad de Suba, Bogotá
+      </p>
+    </div>
   </div>
-</div>
 
-<div class="map-view-content">
-  <!-- Contenedor principal del mapa -->
-  <mat-card class="map-card">
-    <mat-card-content>
-      <!-- Contenedor del mapa siempre presente -->
-      <div class="map-content">
-        <!-- El mapa siempre está en el DOM -->
-        <div id="map" class="map"></div>
-
-        <!-- Superponemos los estados de carga -->
-        <div *ngIf="loading" class="loading-overlay">
-          <mat-spinner diameter="50"></mat-spinner>
-          <p>Cargando sedes...</p>
-        </div>
-
-        <div *ngIf="!loading && !mapInitialized" class="loading-overlay">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p>Inicializando mapa...</p>
-        </div>
-
-        <!-- Controles del mapa (solo visibles cuando no está cargando) -->
-        <div *ngIf="!loading && mapInitialized" class="map-controls">
-          <button mat-mini-fab color="primary" (click)="centerMap()" matTooltip="Centrar mapa">
-            <mat-icon>my_location</mat-icon>
-          </button>
-          <button mat-mini-fab color="primary" (click)="zoomIn()" matTooltip="Acercar">
-            <mat-icon>add</mat-icon>
-          </button>
-          <button mat-mini-fab color="primary" (click)="zoomOut()" matTooltip="Alejar">
-            <mat-icon>remove</mat-icon>
-          </button>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Contenedor de información auxiliar (leyenda e info) -->
-  <div class="map-info-container">
-    <!-- Leyenda del mapa simplificada -->
-    <mat-card class="legend-card">
-      <mat-card-header>
-        <div class="card-header-icon">
-          <mat-icon>map</mat-icon>
-        </div>
-        <mat-card-title>Leyenda</mat-card-title>
-      </mat-card-header>
+  <div class="map-view-content">
+    <!-- Contenedor principal del mapa -->
+    <mat-card class="map-card">
       <mat-card-content>
-        <div class="legend-items">
-          <div class="legend-item">
-            <div class="legend-color" style="background-color: #4CAF50;"></div>
-            <span class="legend-description">Medidores de energía instalados en colegios</span>
+        <!-- Contenedor del mapa siempre presente -->
+        <div class="map-content">
+          <!-- El mapa siempre está en el DOM -->
+          <div id="map" class="map"></div>
+
+          <!-- Superponemos los estados de carga -->
+          <div *ngIf="loading" class="loading-overlay">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p>Cargando sedes...</p>
+          </div>
+
+          <div *ngIf="!loading && !mapInitialized" class="loading-overlay">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Inicializando mapa...</p>
+          </div>
+
+          <!-- Controles del mapa (solo visibles cuando no está cargando) -->
+          <div *ngIf="!loading && mapInitialized" class="map-controls">
+            <button
+              mat-mini-fab
+              color="primary"
+              (click)="centerMap()"
+              matTooltip="Centrar mapa"
+            >
+              <mat-icon>my_location</mat-icon>
+            </button>
+            <button
+              mat-mini-fab
+              color="primary"
+              (click)="zoomIn()"
+              matTooltip="Acercar"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+            <button
+              mat-mini-fab
+              color="primary"
+              (click)="zoomOut()"
+              matTooltip="Alejar"
+            >
+              <mat-icon>remove</mat-icon>
+            </button>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- Información del mapa mejorada -->
-    <mat-card class="info-card" *ngIf="sedes.length > 0">
-      <mat-card-header>
-        <div class="card-header-icon">
-          <mat-icon>info</mat-icon>
-        </div>
-        <mat-card-title>Información</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="stats-container">
-          <div class="stat-item">
-            <div class="stat-value">{{ sedes.length }}</div>
-            <div class="stat-label">Total de sedes</div>
+    <!-- Contenedor de información auxiliar (leyenda e info) -->
+    <div class="map-info-container">
+      <!-- Leyenda del mapa simplificada -->
+      <mat-card class="legend-card">
+        <mat-card-header>
+          <div class="card-header-icon">
+            <mat-icon>map</mat-icon>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <div class="stat-value">Suba</div>
-            <div class="stat-label">Localidad</div>
+          <mat-card-title>Leyenda</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #4caf50"></div>
+              <span class="legend-description"
+                >Medidores de energía instalados en colegios</span
+              >
+            </div>
           </div>
-        </div>
+        </mat-card-content>
+      </mat-card>
 
-        <div class="info-tip">
-          <mat-icon>touch_app</mat-icon>
-          <span>Haz clic en un marcador para ver detalles de la sede</span>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      <!-- Información del mapa mejorada -->
+      <mat-card class="info-card" *ngIf="sedes.length > 0">
+        <mat-card-header>
+          <div class="card-header-icon">
+            <mat-icon>info</mat-icon>
+          </div>
+          <mat-card-title>Información</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stats-container">
+            <div class="stat-item">
+              <div class="stat-value">{{ sedes.length }}</div>
+              <div class="stat-label">Total de sedes</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <div class="stat-value">Suba</div>
+              <div class="stat-label">Localidad</div>
+            </div>
+          </div>
+
+          <div class="info-tip">
+            <mat-icon>touch_app</mat-icon>
+            <span>Haz clic en un marcador para ver detalles de la sede</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
-</div>
 
-<app-footer class="map-footer"></app-footer>
+  <app-footer class="map-footer"></app-footer>
+</div>
