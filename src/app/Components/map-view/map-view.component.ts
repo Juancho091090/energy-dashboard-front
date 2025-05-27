@@ -107,7 +107,7 @@ export class MapViewComponent implements OnInit, AfterViewInit {
 
     this.sedes = [];
 
-    for (let i = 1; i <= 54; i++) {
+    for (let i = 1; i <= 56; i++) {
       // Generar nombres aleatorios combinando prefijos y sufijos
       const prefijo = nombresPrefijos[Math.floor(Math.random() * nombresPrefijos.length)];
       const sufijo = nombresSufijos[Math.floor(Math.random() * nombresSufijos.length)];
