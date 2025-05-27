@@ -120,21 +120,21 @@
         <div *ngIf="!loadingSedes" class="chart-content">
           <!-- Gráfico de barras horizontales simplificado -->
           <div class="sede-chart-container">
-            <div *ngIf="getSimulatedSedeData().length > 0" class="horizontal-chart">
-              <div *ngFor="let sede of getSimulatedSedeData()" class="horizontal-bar-container">
-                <div class="sede-name">{{ sede.nombre }}</div>
+            <div *ngIf="getTopSedes().length > 0" class="horizontal-chart">
+              <div *ngFor="let sede of getTopSedes()" class="horizontal-bar-container">
+                <div class="sede-name">{{ sede.nombre_sede }}</div>
                 <div class="sede-bar-container">
-                  <div class="sede-bar" [style.width.%]="sede.porcentaje">
-                    <span class="sede-bar-value">{{ sede.consumo }} kWh</span>
+                  <div class="sede-bar" [style.width.%]="getBarWidthPercent(sede.id)">
+                    <span class="sede-bar-value">{{ getConsumoRealForSede(sede.id) }} kWh</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div *ngIf="getSimulatedSedeData().length === 0" class="no-data">
+            <div *ngIf="getTopSedes().length === 0" class="no-data">
               <div class="no-data-content">
                 <mat-icon>trending_down</mat-icon>
                 <p>No hay datos de consumo por sede disponibles</p>
-                <button mat-stroked-button color="primary" (click)="generarDatosConsumoPorSede()">
+                <button mat-stroked-button color="primary" (click)="recargarDatos()">
                   Generar datos de ejemplo
                 </button>
               </div>
